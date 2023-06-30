@@ -2,6 +2,7 @@
 import { orderBy as lodashOrderBy, uniqBy } from "lodash";
 import { computed, onMounted, ref, watch } from "vue";
 import ListTable from "@/components/ListTable.vue";
+import SelectedContract from "@/components/SelectedContract.vue";
 import { useFirebase } from "@/composables/firebaseComposable";
 import { useGeneral } from "@/composables/generalComposable";
 const { loading } = useGeneral();
@@ -47,6 +48,7 @@ const getContacts = async (userId = null) => {
     });
 };
 onMounted(async () => {
+    console.log("home mounted");
     loading.value = true;
     await getProfile(currentUser.value?.uid);
     await getContacts(currentUser.value?.uid);
@@ -57,15 +59,22 @@ onMounted(async () => {
     <h1 class="text-2xl font-medium tracking-tight text-gray-900">
         User profile
     </h1>
-    <h1 class="text-lg tracking-tight text-gray-800">
+    <h1 class="text-sm tracking-tight text-gray-400">
+        Id: {{ currentUser.uid }}
+    </h1>
+    <h1 class="text-sm tracking-tight text-gray-400">
         Username: {{ userProfile.username }}
+    </h1>
+    <h1 class="text-sm tracking-tight text-gray-400">
+        email: {{ currentUser.email }}
     </h1>
     <div class="flex justify-center my-8">
         <div class="w-full">
             <ListTable :list="listFiltered" />
         </div>
     </div>
+
     <Teleport to="aside">
-        <div><h1 class="text-lg">teleport</h1></div>
+        <SelectedContract></SelectedContract>
     </Teleport>
 </template>

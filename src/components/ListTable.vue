@@ -1,15 +1,22 @@
 <template>
     <ul
+        v-if="list.length > 0"
         role="list"
         class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl"
     >
         <li
             v-for="item in list"
             :key="item.id"
-            class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
+            class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 active:bg-gray-100 sm:px-6"
         >
             <ListItemV2 :item="item"></ListItemV2>
         </li>
+    </ul>
+    <ul v-else role="list" class="overflow-hidden bg-white space-y-2">
+        <li
+            v-for="item in 3"
+            class="h-20 animate-pulse bg-slate-50 rounded-xl relative flex justify-between gap-x-6 px-4 py-5sm:px-6"
+        ></li>
     </ul>
 </template>
 

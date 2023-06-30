@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { ChevronRightIcon } from "@heroicons/vue/20/solid";
-import { useGeneral } from "@/composables/generalComposable";
-const { slideOverOpen } = useGeneral();
+import { onSnapshot, doc } from "firebase/firestore";
+import { useFirebase } from "@/composables/firebaseComposable";
+import { useContracts } from "@/composables/contractsComposable";
+const { currentSelectedContract } = useContracts();
+const { db } = useFirebase();
+const router = useRouter();
 const props = defineProps({
     item: {
         type: Object,
@@ -10,7 +15,47 @@ const props = defineProps({
     }
 });
 const item = computed(() => props.item || {});
-console.log("item: ", item);
+const setCurrentSelected = () => {
+    console.log("set item: ", {
+        id: item.value?.id,
+        name: item.value?.data?.name
+    });
+    router.push({ path: "/contracts/" + item.value?.id });
+};
+
+const contractData: any = ref(null);
+
+const getContract = () => {
+    if (!item.value) return;
+    const unsub = onSnapshot(
+        doc(db, "contracts", item.value?.id),
+        (doc) => {
+            console.log("Current data: ", doc.data());
+            contractData.value = {
+                id: doc.id,
+                data: doc.data()
+            };
+        },
+        (error) => {
+            console.log("Error getting document:", error);
+            contractData.value = { error };
+        }
+    );
+};
+
+const status = computed(() => contractData.value?.data?.status || "pending");
+
+const statusColors: any = {
+    pending: {
+        dark: "bg-yellow-500/20",
+        light: "bg-yellow-500"
+    }
+};
+
+onMounted(() => {
+    console.log("item mounted");
+    getContract();
+});
 </script>
 <template>
     <div class="flex gap-x-4">
@@ -24,10 +69,10 @@ console.log("item: ", item);
         />
         <div class="min-w-0 flex-auto">
             <p class="text-sm font-semibold leading-6 text-gray-900">
-                <a @click="slideOverOpen = true">
+                <button @click="setCurrentSelected">
                     <span class="absolute inset-x-0 -top-px bottom-0" />
                     {{ item.data?.name || "Chris" }}
-                </a>
+                </button>
             </p>
             <p class="mt-1 flex text-xs leading-5 text-gray-500">
                 <a class="relative truncate hover:underline">{{
@@ -38,26 +83,30 @@ console.log("item: ", item);
     </div>
     <div class="flex items-center gap-x-4">
         <div
-            v-if="item.role && item.lastSeen && item.lastSeenDateTime"
+            v-if="status && contractData"
             class="hidden sm:flex sm:flex-col sm:items-end"
         >
-            <p class="text-sm leading-6 text-gray-900">
-                {{ item.role }}
-            </p>
-            <p
-                v-if="item.lastSeen"
-                class="mt-1 text-xs leading-5 text-gray-500"
-            >
-                Last seen
-                <time :datetime="item.lastSeenDateTime">{{
-                    item.lastSeen
-                }}</time>
-            </p>
-            <div v-else class="mt-1 flex items-center gap-x-1.5">
-                <div class="flex-none rounded-full bg-emerald-500/20 p-1">
-                    <div class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <div class="mt-1 flex items-center gap-x-1.5">
+                <div
+                    class="flex-none rounded-full p-1"
+                    :class="
+                        statusColors[status]
+                            ? statusColors[status].dark
+                            : 'bg-emerald-500/20'
+                    "
+                >
+                    <div
+                        class="h-1.5 w-1.5 rounded-full"
+                        :class="
+                            statusColors[status]
+                                ? statusColors[status].light
+                                : 'bg-emerald-500'
+                        "
+                    />
                 </div>
-                <p class="text-xs leading-5 text-gray-500">Online</p>
+                <p class="text-xs leading-5 text-gray-500">
+                    {{ status }}
+                </p>
             </div>
         </div>
         <ChevronRightIcon

@@ -1,5 +1,5 @@
 import { ref } from "vue";
-const currentSelectedContract = ref(null);
+const currentSelectedContract = ref("");
 export const useContracts = () => {
     return {
         currentSelectedContract
