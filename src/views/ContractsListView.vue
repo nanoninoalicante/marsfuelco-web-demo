@@ -20,7 +20,7 @@ const list: any = ref([]);
 const contractsList: any = ref([]);
 const listFiltered = computed(() =>
     lodashOrderBy(
-        uniqBy(list.value, (i: any) => i.id),
+        uniqBy(contractsList.value, (i: any) => i.id),
         ["data.createdAt"],
         ["desc"]
     )
@@ -50,11 +50,27 @@ const getContacts = async (userId = null) => {
     });
 };
 
+const getContactsDirect = async (userId = null) => {
+    const q = query(
+        collection(db, `contracts`),
+        where("users", "array-contains", userId)
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            contractsList.value.push({
+                id: doc.id,
+                data: doc.data()
+            });
+        });
+        console.log("contractsList: ", contractsList.value);
+    });
+};
+
 onMounted(async () => {
     console.log("home mounted");
     loading.value = true;
     await getProfile(currentUser.value?.uid);
-    await getContacts(currentUser.value?.uid);
+    await getContactsDirect(currentUser.value?.uid);
 });
 </script>
 

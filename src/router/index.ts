@@ -33,7 +33,7 @@ const router = createRouter({
         {
             path: "/contracts",
             name: "contracts",
-            component: () => import("../views/HomeView.vue")
+            component: () => import("../views/ContractsListView.vue")
         },
         {
             path: "/contracts/:id",

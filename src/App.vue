@@ -303,7 +303,7 @@
 
         <aside
             id="aside"
-            class="fixed sm:max-sm:inset-x-0 bottom-0 md:right-0 w-full h-[24rem] md:h-full md:w-[24rem] lg:w-[34rem] overflow-y-auto border-t md:border-t-0 md:border-l border-gray-200 pt-8 md:pt-24 lg:pt-6 px-4 sm:px-6 lg:px-8 md:block"
+            class="fixed sm:max-sm:inset-x-0 bottom-0 md:right-0 w-full h-[24rem] md:h-full md:w-[24rem] xl:w-[34rem] overflow-y-auto border-t md:border-t-0 md:border-l border-gray-200 pt-8 md:pt-24 lg:pt-6 px-4 sm:px-6 lg:px-8 md:block"
         >
             <!-- Secondary column (hidden on smaller screens) -->
         </aside>

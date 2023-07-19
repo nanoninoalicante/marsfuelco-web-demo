@@ -2,7 +2,14 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { ChevronRightIcon } from "@heroicons/vue/20/solid";
-import { onSnapshot, doc } from "firebase/firestore";
+import {
+    onSnapshot,
+    doc,
+    query,
+    collection,
+    where,
+    getDocs
+} from "firebase/firestore";
 import { useFirebase } from "@/composables/firebaseComposable";
 import { useContracts } from "@/composables/contractsComposable";
 const { currentSelectedContract } = useContracts();
@@ -43,6 +50,25 @@ const getContract = () => {
     );
 };
 
+const recipient: any = ref(null);
+
+const getRecipient = async () => {
+    if (!item.value?.users && item.value?.users?.length < 1) return;
+    console.log("recipient: ", `users/${item.value?.data?.users?.[0]}/public`);
+    const q = query(
+        collection(db, `users/${item.value?.data?.users?.[0]}/public`)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc: any) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(`recipient - ${doc.id}`, " => ", doc.data());
+        recipient.value = {
+            id: doc.id,
+            data: doc.data()
+        };
+    });
+};
+
 const status = computed(() => contractData.value?.data?.status || "pending");
 
 const statusColors: any = {
@@ -52,9 +78,10 @@ const statusColors: any = {
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     console.log("item mounted");
-    getContract();
+    // getContract();
+    await getRecipient();
 });
 </script>
 <template>
